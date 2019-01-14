@@ -1,3 +1,53 @@
+# Generative Code Modeling with Graphs
+
+This is the code required to reproduce experiments in two of our papers on
+modeling of programs, composed of three major components:
+* A C# program required to extract (simplified) program graphs from C#
+  source files, similar to our ICLR'18 paper
+  [Learning to Represent Programs with Graphs](https://openreview.net/forum?id=BJOFETxR-).
+  More precisely, it implements that paper apart from the speculative 
+  dataflow component ("draw dataflow edges as if a variable would be used 
+  in this place") and an alias analysis to filter equivalent variables.
+* A TensorFlow model for program graphs, following ICLR'18 paper
+  [Learning to Represent Programs with Graphs](https://openreview.net/forum?id=BJOFETxR-).
+  This is a refactoring/partial rewrite of the original model, incorporating
+  some new ideas on the representation of node labels from Cvitkovic et al.
+  ([Open Vocabulary Learning on Source Code with a Graph-Structured Cache](https://arxiv.org/abs/1810.08305)).
+* A TensorFlow model to generate new source code expressions conditional
+  on their context, implementing our ICLR'19 paper
+  [Generative Code Modeling with Graphs](https://openreview.net/forum?id=Bke4KsA5FX).
+
+## Citations
+
+If you want to cite this work for the encoder part (i.e., our ICLR'18 paper),
+please use this bibtex entry:
+
+```
+@inproceedings{allamanis18learning,
+  title={Learning to Represent Programs with Graphs},
+  author={Allamanis, Miltiadis
+          and Brockschmidt, Marc
+          and Khademi, Mahmoud},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2018}
+}
+```
+
+If you want to cite this work for the generative model (i.e., our ICLR'19
+paper), please use this bibtex entry:
+
+```
+@inproceedings{brockschmidt2019generative,
+  title={Generative Code Modeling with Graphs},
+  author={Brockschmidt, Marc
+          and Allamanis, Miltiadis
+          and Gaunt, Alexander~L. 
+          and Polozov, Oleksandr},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2019}
+}
+```
+
 # Running the Code
 The released code provides two components:
 * Data Extraction: A C# project extracting graphs and expressions from a corpus
@@ -174,6 +224,73 @@ $ utils/tensorise.py test_data/tensorised_seq2graph test_data/exprs-types.json.g
 $ utils/train.py test_data/tensorised_seq2graph/{,} --model seq2graph --hypers-override '{"eg_hidden_size": 32, "cx_token_representation_size": 64}'
 [...]
 ```
+
+### Model Structure
+
+Roughly, the model code is split into three main components:
+* Infrastructure: The `Model` class (in `exprsynth/model.py`) implements the
+  usual general infrastructure bits; and models are expected to implement
+  certain hooks in it. All of these are documented individually.
+  - Saving and loading models, hyperparameters, training loop, etc.
+  - Construction of metadata such as vocabularies: This code is parallelised
+    and implementations need to extend three core methods (`_init_metadata`,
+    `_load_metadata_from_sample`, `_finalise_metadata`) to use this code.
+    Intuitively, `init_metadata` prepares a `dict` to store raw information
+    (e.g., token counters) and `_load_metadata_from_sample` processes a 
+    single datapoint to update this raw data. These two are usually
+    parallelised, and `_finalise_metadata` has to combine all raw metadata
+    dictionaries to obtain one metadata dictionary, containing for example
+    a vocabulary (in a MapReduce style).
+  - Tensorising raw samples: `_load_data_from_sample` needs to be extended
+    for this, and implementors can use the computed metadata.
+  - Minibatch construction: We build minibatches by growing a batch until
+    we reach a size limit (e.g., because we hit the maximal number of nodes
+    per batch). This is implemented in the methods `_init_minibatch`
+    (creating a new dictionary to hold data), `_extend_minibatch_by_sample`
+    to add a new sample to a batch, and `_finalise_minibatch`, which can do
+    final flattening operations and turn things into a feed dict.
+    
+    *Note* 1: This somewhat complicated strategy is required for two
+    reasons. First, the sizes of graphs can vary substantially, and so
+    picking a fixed number of graphs may yield a minibatch that is very
+    small or large (in number of nodes). At the same time, our strategy
+    of treating graph batches as one large graph requires regular shifting
+    of node indices of samples, which is easiest to implement correctly
+    in this incremental fashion.
+
+    *Note* 2: In principle, these methods should be executed on another
+    thread, so that a new minibatch can be constructed while the GPU is
+    computing. Code for this exists, but was taken out for simplicity here.
+ * Context Models: Two context models are implemented:
+   - `ContextGraphModel` (in `exprsynth/contegraphmodel.py`): This is
+     the code implementing the modeling of a program graph, taking types,
+     labels, dataflow, etc. into account. It produces a representation of
+     all nodes in the input graphs as `model.ops['cg_node_representations']`,
+     which can then be used in downstream models.
+   - `ContextTokenModel` (in `exprsynth/contexttokenmodel.py`): This implements
+     a simple BiGRU model over the tokens around the target expression, taking
+     types into account. It produces a representation of all tokens in these
+     contexts as `model.ops['cx_hole_context_representations']`.
+ * Decoder Models: Two decoder models are implemented:
+   - `NAGDecoder` (in `exprsynth/nagdecoder.py`): This is the code implementing
+     the modeling of program generation as a graph.
+
+     First, a representation of all nodes in the expansion graph is computed
+     using scheduled message passing (implemented using `AsyncGGNN` at training
+     time and step-wise use of `get_node_attributes` at test time).
+     The schedule is determined by the `__load_expansiongraph_training_data_from_sample`
+     method (and is the core of our paper).
+
+     Second, a number of expansion decisions are made. The modeling of grammar
+     productions is in `__make_production_choice_logits_model`, variables are
+     chosen in `__make_variable_choice_logits_model` and literals are produced
+     or copied in `__make_literal_choice_logits_model`.
+   - `SeqDecoder` (in `exprsynth/seqdecoder.py`): A simple sequence decoder.
+ * Glue code: Context models and decoders are combined using the actual models
+   we instantiate. For example, `NAGModel` extends the `ContextGraphModel` and
+   instantiates a `NAGDecoder`, contributing only some functionality to forward
+   data from the encoder to the decoder.
+
 
 # Contributing
 
