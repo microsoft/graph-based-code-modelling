@@ -7,7 +7,7 @@ modeling of programs, composed of three major components:
   [Learning to Represent Programs with Graphs](https://openreview.net/forum?id=BJOFETxR-).
   More precisely, it implements that paper apart from the speculative 
   dataflow component ("draw dataflow edges as if a variable would be used 
-  in this place") and an alias analysis to filter equivalent variables.
+  in this place") and the alias analysis to filter equivalent variables.
 * A TensorFlow model for program graphs, following ICLR'18 paper
   [Learning to Represent Programs with Graphs](https://openreview.net/forum?id=BJOFETxR-).
   This is a refactoring/partial rewrite of the original model, incorporating
@@ -52,7 +52,7 @@ paper), please use this bibtex entry:
 The released code provides two components:
 * Data Extraction: A C# project extracting graphs and expressions from a corpus
   of C# projects. The sources for this are in `DataExtraction/`.
-* Modelling: A python project learning model of expressions, conditionally on
+* Modelling: A Python project learning model of expressions, conditionally on
   the program context. The sources for this are in `Models/`.
 
 Note that the code is a research prototype; the documentation is generally
@@ -60,7 +60,7 @@ incomplete and code quality is varying.
 
 ## Data Extraction
 ### Building the data extractor
-To build the data extraction, you need a .Net development environment (i.e.,
+To build the data extraction, you need a .NET development environment (i.e.,
 a working `dotnet` executable). Once this is set up, you can build the 
 extractor as follows:
 ```
@@ -93,7 +93,8 @@ consisting of a context graph and a target expression in tree form.
 `ExpressionDataExtractor.exe --help` provides some information on
 additional options.
 
-*Note*: Building C# projects is often non-trivial (requiring libraries in the
+*Note*: Building C# projects is often non-trivial (requiring [NuGet](https://www.nuget.org/)
+and other libraries in the
 path, preparing the build by running helper scripts, etc.). Roughly, data
 extraction from a solution `Project.sln` will only succeed if running 
 `MSBuild Project.sln` succeeds as well.
@@ -120,9 +121,9 @@ Data extraction is split into two projects:
 
 ## Models
 First, run `pip install -r requirements.txt` to download the needed
-dependencies.
+dependencies. Note that all code is written in Python 3.
 
-As the preprocessing of graphs into tensorised form is relatively expensive,
+As the preprocessing of graphs into tensorised form is relatively computationally expensive,
 we use a preprocessing step to do this. This computes vocabularies, the
 grammar required to produce the observed expressions and so on, and then
 transforms node labels from string form into tensorised form, etc.:
