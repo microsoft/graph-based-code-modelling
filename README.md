@@ -101,7 +101,7 @@ extraction from a solution `Project.sln` will only succeed if running
 
 ### Extractor Structure
 Data extraction is split into two projects:
-* `ExpressionDataExtractor`: This is the actual command-line utility and with
+* `ExpressionDataExtractor`: This is the actual command-line utility with
   some code to find and build C# projects in a directory tree.
 * `SourceGraphExtractionUtils`: This project contains the actual extraction
   logic. Almost all of the interesting logic is in `GraphDataExtractor`, which
@@ -215,8 +215,8 @@ There are four different model types implemented:
   but then relies on a 2-layer GRU to construct the target expression.
 * `seq2seq`: An ablation using both a sequence encoder for the program context
   as well as a sequence decoder.
+  
 All models have a wide range of different hyperparameters.
-
 As these choices influence the format of tensorised data, both `tensorise.py`
 and `train.py` need to be re-run for every variation:
 ```
