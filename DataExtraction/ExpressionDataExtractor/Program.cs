@@ -4,6 +4,7 @@ using SourceGraphExtractionUtils;
 using Mono.Options;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
+using CSharpDatasetExtractionUtils;
 
 namespace ExpressionDataExtractor
 {
@@ -124,21 +125,19 @@ namespace ExpressionDataExtractor
                 additionalExtractors = node => phog.ExtractFor(node);
             }
 
-            using (var extractor = new SourceGraphExtractor(ExtractorOptions.DataPath,
+            using (var extractor = new ExpressionHoleGraphExtractor(ExtractorOptions.DataPath,
                                             graphOutputFilenameTemplate,
                                             typeHierarchyOutputFile,
                                             ExtractorOptions.DotDebugDirectory,
                                             logPath: extractorLogPath,
                                             additionalExtractors: additionalExtractors))
             {
-                
-                using (CSharpCorpusBuilder builder = new CSharpCorpusBuilder(compileLogPath,
-                    numExtractionWorkers: 20,
-                    compilationQueueSize: 10,
-                    resumeListPath: Path.Combine(ExtractorOptions.GraphOutputPath, "projectResumeList.txt")))
+                var builder = new CSharpCorpusBuilder(
+                    logLocation: Path.Combine(ExtractorOptions.GraphOutputPath, "log", "compile-log.txt"),
+                    resumeListDirectory: Path.Combine(ExtractorOptions.GraphOutputPath, "log"));
                 {
                     extractor.AddFilesToIgnore(GetFilesToIgnore());
-                    builder.SyntaxTreeParsed += extractor.ExtractAllSamplesFromSemanticModel;
+                    builder.ObtainedSemanticTree += extractor.ExtractAllSamplesFromSemanticModel;
                     builder.BuildAllSolutionsInDirectory(ExtractorOptions.DataPath);
                 }                
             }

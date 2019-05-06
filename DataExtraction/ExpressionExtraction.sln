@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28516.95
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceGraphExtractionUtils", "SourceGraphExtractionUtils\SourceGraphExtractionUtils.csproj", "{E7296553-CC60-4259-A7A2-29F45A07BBE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SourceGraphExtractionUtils", "SourceGraphExtractionUtils\SourceGraphExtractionUtils.csproj", "{E7296553-CC60-4259-A7A2-29F45A07BBE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionDataExtractor", "ExpressionDataExtractor\ExpressionDataExtractor.csproj", "{7880171B-4B9D-44B9-8615-EB5622E0D6E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpressionDataExtractor", "ExpressionDataExtractor\ExpressionDataExtractor.csproj", "{7880171B-4B9D-44B9-8615-EB5622E0D6E3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpDatasetExtractionUtils", "CSharpDatasetExtractionUtils\CSharpDatasetExtractionUtils.csproj", "{ECFB5256-4B2F-4230-A0EE-F2330037250C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{7880171B-4B9D-44B9-8615-EB5622E0D6E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7880171B-4B9D-44B9-8615-EB5622E0D6E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7880171B-4B9D-44B9-8615-EB5622E0D6E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECFB5256-4B2F-4230-A0EE-F2330037250C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECFB5256-4B2F-4230-A0EE-F2330037250C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECFB5256-4B2F-4230-A0EE-F2330037250C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECFB5256-4B2F-4230-A0EE-F2330037250C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
