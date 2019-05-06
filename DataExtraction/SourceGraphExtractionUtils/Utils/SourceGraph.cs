@@ -222,19 +222,31 @@ namespace SourceGraphExtractionUtils.Utils
                 jWriter.WriteValue(toLineNo - fromLineNo);
             };
 
-        public void WriteJson(JsonWriter jWriter, Dictionary<SyntaxNodeOrToken, int> nodeNumberer, Dictionary<SyntaxNodeOrToken, string> nodeLabelOverrides, int holeLineNumber)
+        public void WriteJson(
+            JsonWriter jWriter,
+            Dictionary<SyntaxNodeOrToken, int> nodeNumberer,
+            Dictionary<SyntaxNodeOrToken, string> nodeLabelOverrides,
+            int? holeLineNumber = null)
         {
+            var edgeDistanceInfoWriters = 
+                holeLineNumber.HasValue
+                ? new (Predicate<SourceGraphEdge> acceptsEdgeLabel,
+                       Action<JsonWriter, (SyntaxNodeOrToken From, SyntaxNodeOrToken To)> writer)[]
+                  {
+                      (edgeType => edgeType.Equals(SourceGraphEdge.LastLexicalUse)
+                                   || edgeType.Equals(SourceGraphEdge.LastUse)
+                                   || edgeType.Equals(SourceGraphEdge.LastWrite),
+                       WriteEdgeDistanceValueJson(SemanticModel, holeLineNumber.Value))
+                  }
+                : new (Predicate<SourceGraphEdge> acceptsEdgeLabel, 
+                       Action<JsonWriter, (SyntaxNodeOrToken From, SyntaxNodeOrToken To)> writer)[0];
             WriteJson(jWriter,
                 nodeNumberer,
                 new Action<JsonWriter, Dictionary<SyntaxNodeOrToken, int>>[] {
                     WriteNodeLabelsJson(nodeLabelOverrides),
                     WriteNodeTypesJson(),
                 },
-                new (Predicate<SourceGraphEdge> acceptsEdgeLabel, Action<JsonWriter, (SyntaxNodeOrToken From, SyntaxNodeOrToken To)> writer)[] {
-                    (edgeType => edgeType.Equals(SourceGraphEdge.LastLexicalUse)
-                    || edgeType.Equals(SourceGraphEdge.LastUse)
-                    || edgeType.Equals(SourceGraphEdge.LastWrite), WriteEdgeDistanceValueJson(SemanticModel, holeLineNumber))
-                });
+                edgeDistanceInfoWriters);
         }
 
         public void ToDotFile(string outputPath, Dictionary<SyntaxNodeOrToken, int> nodeNumberer, Dictionary<SyntaxNodeOrToken, string> nodeLabeler, bool diffable=false)

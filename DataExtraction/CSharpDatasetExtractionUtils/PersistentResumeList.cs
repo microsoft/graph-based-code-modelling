@@ -27,6 +27,8 @@ namespace CSharpDatasetExtractionUtils
             else
             {
                 // Create
+                var baseDirectory = Path.GetDirectoryName(_savePath);
+                Directory.CreateDirectory(baseDirectory);
                 File.WriteAllText(savePath, "");
             }
         }
