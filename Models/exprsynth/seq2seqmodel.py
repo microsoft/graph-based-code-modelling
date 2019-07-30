@@ -83,7 +83,7 @@ class Seq2SeqModel(ContextTokenModel):
 
     def _finalise_minibatch(self, batch_data: Dict[str, Any], is_train: bool) -> Dict[tf.Tensor, Any]:
         minibatch = super()._finalise_minibatch(batch_data, is_train)
-        self._decoder_model.finalise_minibatch(batch_data, minibatch, is_train)
+        self._decoder_model.finalise_minibatch(batch_data, minibatch)
         return minibatch
 
     # ------- These are the bits that we only need for test-time:
