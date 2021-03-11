@@ -1,4 +1,4 @@
 docopt
-dpu_utils>=0.1.9,<2
-tensorflow-gpu>=1.6,<2
+dpu_utils>=0.1.9,<1.0
+tensorflow-gpu>=1.6,<2.0
 numpy
