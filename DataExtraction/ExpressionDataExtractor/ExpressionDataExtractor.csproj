@@ -17,5 +17,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" version="2.10.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" version="2.10.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" version="2.10.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.3" />
   </ItemGroup>
 </Project>
